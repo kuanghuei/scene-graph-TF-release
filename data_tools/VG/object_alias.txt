@@ -2926,7 +2926,7 @@ adaptor,adaptors
 confectioner,confectioners
 what this,what this is
 manhole,manholes
-vas,vases
+vase,vases
 newlywed,newlyweds
 outline,outlines
 photograph,photographs

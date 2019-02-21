@@ -482,17 +482,19 @@ def main(args):
         print('using predicate alias from %s' % (args.pred_alias))
         pred_alias_dict, pred_vocab_list = make_alias_dict(args.pred_alias)
 
-    obj_list = []
-    if len(args.object_list) > 0:
-        print('using object list from %s' % (args.object_list))
-        obj_list = make_list(args.object_list)
-        assert(len(obj_list) >= args.num_objects)
+    obj_list = obj_vocab_list[:]
+    pred_list = pred_vocab_list[:]
+    #obj_list = []
+    #if len(args.object_list) > 0:
+    #    print('using object list from %s' % (args.object_list))
+    #    obj_list = make_list(args.object_list)
+    #    assert(len(obj_list) >= args.num_objects)
 
-    pred_list = []
-    if len(args.pred_list) > 0:
-        print('using predicate list from %s' % (args.pred_list))
-        pred_list = make_list(args.pred_list)
-        assert(len(obj_list) >= args.num_predicates)
+    #pred_list = []
+    #if len(args.pred_list) > 0:
+    #    print('using predicate list from %s' % (args.pred_list))
+    #    pred_list = make_list(args.pred_list)
+    #    assert(len(obj_list) >= args.num_predicates)
 
     # read in the annotation data
     print('loading json files..')
@@ -622,8 +624,8 @@ if __name__ == '__main__':
     parser.add_argument('--metadata_input', default='VG/image_data.json', type=str)
     parser.add_argument('--object_alias', default='VG/object_alias.txt', type=str)
     parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
-    parser.add_argument('--object_list', default='VG/object_list.txt', type=str)
-    parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
+    #parser.add_argument('--object_list', default='VG/object_list.txt', type=str)
+    #parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
     parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
     parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
     parser.add_argument('--min_box_area_frac', default=0.002, type=float)
