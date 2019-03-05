@@ -555,13 +555,13 @@ def filter_by_xml(obj_data, rel_data, img_data, args):
             if child.tag == 'object':
                 name = str(child[0].text)
                 object_id = str(child[1].text)
-                ref[object_id] = name
+                obj_ref[object_id] = name
 
             if child.tag == 'relation':
                 subject_id = str(child[0].text)
                 object_id = str(child[1].text)
                 predicate = str(child[2].text)
-                ref[(subject_id, object_id)] = predicate
+                rel_ref[(subject_id, object_id)] = predicate
 
         objects, relationships = im_obj['objects'], im_rel['relationships']
         added_objects, added_relationships = set(), set()
