@@ -617,7 +617,7 @@ def create_from_xml(img_data, args):
                 ymax = int(child[3][1].text)
                 w = xmax - xmin
                 h = ymax - ymin
-                obj_data['objects'].append({'x': xmin, , 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
+                obj_data['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
                 obj_list.add(name)
 
             if child.tag == 'relation':
