@@ -470,59 +470,115 @@ def sync_objects(obj_data, rel_data):
         obj_data[i]['objects'] = objs
 
 
-def filter_rel(rel_data, args):
-    pred_list = set()
-    for im in rel_data:
-        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-        root = tree.getroot()
-        ref = {}
-        for child in root:
-            if child.tag == 'relation':
-                subject_id = str(child[0].text)
-                object_id = str(child[1].text)
-                predicate = str(child[2].text)
-                ref[(subject_id, object_id)] = predicate
-        rels = im['relationships']
-        added = set()
-        new_rels = []
-        for rel in rels:
-            key1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
-            if key1 in ref:
-                key2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), ref[key1])
-                if key2 not in added:
-                    added.add(key2)
-                    rel['predicate'] = ref[key1]
-                    pred_list.add(rel['predicate'])
-                    new_rels.append(rel)
-        im['relationships'] = new_rels
-    return list(pred_list)
+# def filter_rel(rel_data, args):
+#     pred_list = set()
+#     for im in rel_data:
+#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+#         root = tree.getroot()
+#         ref = {}
+#         for child in root:
+#             if child.tag == 'relation':
+#                 subject_id = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 predicate = str(child[2].text)
+#                 ref[(subject_id, object_id)] = predicate
+#         rels = im['relationships']
+#         added = set()
+#         new_rels = []
+#         for rel in rels:
+#             key1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
+#             if key1 in ref:
+#                 key2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), ref[key1])
+#                 if key2 not in added:
+#                     added.add(key2)
+#                     rel['predicate'] = ref[key1]
+#                     pred_list.add(rel['predicate'])
+#                     new_rels.append(rel)
+#         im['relationships'] = new_rels
+#     return list(pred_list)
 
 
-def filter_obj(obj_data, args):
-    obj_list = set()
-    for im in rel_data:
-        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-        root = tree.getroot()
-        ref = {}
-        for child in root:
-            if child.tag == 'object':
-                name = str(child[0].text)
-                object_id = str(child[1].text)
-                ref[object_id] = name
-        objs = im['objects']
-        added = set()
-        new_objs = []
-        for obj in objs:
-            key1 = str(obj['object_id'])
-            if key1 in ref:
-                key2 = (str(obj['object_id']), ref[key1])
-                if key2 not in added:
-                    added.add(key2)
-                    obj['name'] = ref[key1]
-                    obj_list.add(obj['name'])
-                    new_objs.append(obj)
-        im['objects'] = new_objs
-    return list(obj_list)
+# def filter_obj(obj_data, args):
+#     obj_list = set()
+#     for im in obj_data:
+#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+#         root = tree.getroot()
+#         ref = {}
+#         for child in root:
+#             if child.tag == 'object':
+#                 name = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 ref[object_id] = name
+#         objs = im['objects']
+#         added = set()
+#         new_objs = []
+#         for obj in objs:
+#             key1 = str(obj['object_id'])
+#             if key1 in ref:
+#                 key2 = (str(obj['object_id']), ref[key1])
+#                 if key2 not in added:
+#                     added.add(key2)
+#                     obj['name'] = ref[key1]
+#                     obj_list.add(obj['name'])
+#                     new_objs.append(obj)
+#         im['objects'] = new_objs
+#     return list(obj_list)
+
+
+# def filter_img(img_data, args):
+#     for im in img_data:
+#         xml_filename = '{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])
+#         for obj in objs:
+#             key1 = str(obj['object_id'])
+#             if key1 in ref:
+#                 key2 = (str(obj['object_id']), ref[key1])
+#                 if key2 not in added:
+#                     added.add(key2)
+#                     obj['name'] = ref[key1]
+#                     obj_list.add(obj['name'])
+#                     new_objs.append(obj)
+#         im['objects'] = new_objs
+#     return list(obj_list)
+
+
+# def filter_by_xml(obj_data, rel_data, img_data, args):
+#     pred_list = set()
+#     obj_list = set()
+#     for im_obj, im_rel, im in zip(obj_data, rel_data, img_data):
+#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+#         root = tree.getroot()
+#         rel_ref = {}
+#         obj_ref = {}
+#         for child in root:
+
+#             if child.tag == 'object':
+#                 name = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 ref[object_id] = name
+
+#             if child.tag == 'relation':
+#                 subject_id = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 predicate = str(child[2].text)
+#                 ref[(subject_id, object_id)] = predicate
+
+#         objects, relationships = im_obj['objects'], im_rel['relationships']
+#         added_objects, added_relationships = set(), set()
+#         new_objects, new_relationships = [], []
+#         im_obj['objects'], im_rel['relationships'] = [], []
+
+#         for rel in relationships:
+#             k1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
+#             if k1 in ref:
+#                 pred = ref[k1]
+#                 k2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), pred)
+#                 if k2 not in added:
+#                     added.add(k2)
+#                     rel['predicate'] = pred
+#                     pred_list.add(rel['predicate'])
+#                     im_rel['relationships'].append(rel)
+#     return list(pred_list)
+
 
 def main(args):
     print('start')
@@ -567,120 +623,124 @@ def main(args):
     img_long_sizes = [512, 1024]
     valid_im_idx = imdb['valid_idx'][:] # valid image indices
     img_ids = imdb['image_ids'][:]
-    
+
+    print('len(valid_im_idx)', len(valid_im_idx))
+    print('len(img_ids)', len(img_ids))
+
     obj_data = filter_by_idx(obj_data, valid_im_idx)
     rel_data = filter_by_idx(rel_data, valid_im_idx)
     img_data = filter_by_idx(img_data, valid_im_idx)
 
     print('len(obj_data) before filtering', len(obj_data))
     print('len(rel_data) before filtering', len(rel_data))
+    print('len(img_data) before filtering', len(img_data))
 
-    obj_list = filter_rel(obj_data, args)
-    pred_list = filter_rel(rel_data, args)
+   #  obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
 
-    print('len(obj_data) after filtering', len(obj_data))
-    print('len(rel_data) after filtering', len(rel_data))
+   #  print('len(obj_data) after filtering', len(obj_data))
+   #  print('len(rel_data) after filtering', len(rel_data))
+   #  print('len(img_data) after filtering', len(img_data))
 
-    # sanity check
-    for i in xrange(num_im):
-        assert(obj_data[i]['image_id'] \
-               == rel_data[i]['image_id'] \
-               == img_data[i]['image_id'] \
-               == img_ids[i]
-               )
+   #  # sanity check
+   #  for i in xrange(num_im):
+   #      assert(obj_data[i]['image_id'] \
+   #             == rel_data[i]['image_id'] \
+   #             == img_data[i]['image_id'] \
+   #             == img_ids[i]
+   #             )
 
-    # may only load a fraction of the data
-    if args.load_frac < 1:
-        num_im = int(num_im*args.load_frac)
-        obj_data = obj_data[:num_im]
-        rel_data = rel_data[:num_im]
-    print('processing %i images' % num_im)
+   #  # may only load a fraction of the data
+   #  if args.load_frac < 1:
+   #      num_im = int(num_im*args.load_frac)
+   #      obj_data = obj_data[:num_im]
+   #      rel_data = rel_data[:num_im]
+   #  print('processing %i images' % num_im)
 
-    # sync objects from rel to obj_data
-    sync_objects(obj_data, rel_data)
+   #  # sync objects from rel to obj_data
+   #  sync_objects(obj_data, rel_data)
 
-    obj_rel_cross_check(obj_data, rel_data)
+   #  obj_rel_cross_check(obj_data, rel_data)
 
-    # preprocess label data
-    # preprocess_object_labels(obj_data, alias_dict=obj_alias_dict)
-    # preprocess_predicates(rel_data, alias_dict=pred_alias_dict)
+   #  # preprocess label data
+   #  # preprocess_object_labels(obj_data, alias_dict=obj_alias_dict)
+   #  # preprocess_predicates(rel_data, alias_dict=pred_alias_dict)
 
-    heights, widths = imdb['original_heights'][:], imdb['original_widths'][:]
-    if args.min_box_area_frac > 0:
-        # filter out invalid small boxes
-        print('threshold bounding box by %f area fraction' % args.min_box_area_frac)
-        filter_object_boxes(obj_data, heights, widths, args.min_box_area_frac) # filter by box dimensions
+   #  heights, widths = imdb['original_heights'][:], imdb['original_widths'][:]
+   #  if args.min_box_area_frac > 0:
+   #      # filter out invalid small boxes
+   #      print('threshold bounding box by %f area fraction' % args.min_box_area_frac)
+   #      filter_object_boxes(obj_data, heights, widths, args.min_box_area_frac) # filter by box dimensions
 
-    merge_duplicate_boxes(obj_data)
+   #  merge_duplicate_boxes(obj_data)
 
-    # build vocabulary
-    object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
-                                                               obj_list)
+   #  # build vocabulary
+   #  object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
+   #                                                             obj_list)
 
-    label_to_idx, idx_to_label = build_token_dict(object_tokens)
+   #  label_to_idx, idx_to_label = build_token_dict(object_tokens)
 
-    predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data,
-                                                                        args.num_predicates,
-                                                                        pred_list)
-    predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
+   #  predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data,
+   #                                                                      args.num_predicates,
+   #                                                                      pred_list)
+   #  predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
 
-    # print out vocabulary
-    print('objects: ')
-    print(object_token_counter)
-    print('relationships: ')
-    print(predicate_token_counter)
+   #  # print out vocabulary
+   #  print('objects: ')
+   #  print(object_token_counter)
+   #  print('relationships: ')
+   #  print(predicate_token_counter)
 
-    # write the h5 file
-    f = h5.File(args.h5_file, 'w')
+   #  # write the h5 file
+   #  f = h5.File(args.h5_file, 'w')
 
-    # encode object
-    encoded_label, encoded_boxes, im_to_first_obj, im_to_last_obj = \
-    encode_objects(obj_data, label_to_idx, object_token_counter, \
-                   heights, widths, img_long_sizes)
+   #  # encode object
+   #  encoded_label, encoded_boxes, im_to_first_obj, im_to_last_obj = \
+   #  encode_objects(obj_data, label_to_idx, object_token_counter, \
+   #                 heights, widths, img_long_sizes)
 
-    f.create_dataset('labels', data=encoded_label)
-    for k, boxes in encoded_boxes.items():
-        f.create_dataset('boxes_%i' % k, data=boxes)
-    f.create_dataset('img_to_first_box', data=im_to_first_obj)
-    f.create_dataset('img_to_last_box', data=im_to_last_obj)
+   #  f.create_dataset('labels', data=encoded_label)
+   #  for k, boxes in encoded_boxes.items():
+   #      f.create_dataset('boxes_%i' % k, data=boxes)
+   #  f.create_dataset('img_to_first_box', data=im_to_first_obj)
+   #  f.create_dataset('img_to_last_box', data=im_to_last_obj)
 
-    encoded_predicate, encoded_rel, im_to_first_rel, im_to_last_rel = \
-    encode_relationships(rel_data, predicate_to_idx, obj_data)
+   #  encoded_predicate, encoded_rel, im_to_first_rel, im_to_last_rel = \
+   #  encode_relationships(rel_data, predicate_to_idx, obj_data)
 
-    f.create_dataset('predicates', data=encoded_predicate)
-    f.create_dataset('relationships', data=encoded_rel)
-    f.create_dataset('img_to_first_rel', data=im_to_first_rel)
-    f.create_dataset('img_to_last_rel', data=im_to_last_rel)
+   #  f.create_dataset('predicates', data=encoded_predicate)
+   #  f.create_dataset('relationships', data=encoded_rel)
+   #  f.create_dataset('img_to_first_rel', data=im_to_first_rel)
+   #  f.create_dataset('img_to_last_rel', data=im_to_last_rel)
 
-   # build train/val/test splits
+   # # build train/val/test splits
 
-    print('num objects = %i' % encoded_label.shape[0])
-    print('num relationships = %i' % encoded_predicate.shape[0])
+   #  print('num objects = %i' % encoded_label.shape[0])
+   #  print('num relationships = %i' % encoded_predicate.shape[0])
 
 
-    opt = None
-    if not args.use_input_split:
-        opt = {}
-        opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
-        opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
-        opt['shuffle'] = args.shuffle
-    split = encode_splits(obj_data, opt)
+   #  opt = None
+   #  if not args.use_input_split:
+   #      opt = {}
+   #      opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
+   #      opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
+   #      opt['shuffle'] = args.shuffle
+   #  split = encode_splits(obj_data, opt)
 
-    if split is not None:
-        f.create_dataset('split', data=split) # 1 = test, 0 = train
+   #  if split is not None:
+   #      f.create_dataset('split', data=split) # 1 = test, 0 = train
 
-    # and write the additional json file
-    json_struct = {
-        'label_to_idx': label_to_idx,
-        'idx_to_label': idx_to_label,
-        'predicate_to_idx': predicate_to_idx,
-        'idx_to_predicate': idx_to_predicate,
-        'predicate_count': predicate_token_counter,
-        'object_count': object_token_counter
-    }
+   #  # and write the additional json file
+   #  json_struct = {
+   #      'label_to_idx': label_to_idx,
+   #      'idx_to_label': idx_to_label,
+   #      'predicate_to_idx': predicate_to_idx,
+   #      'idx_to_predicate': idx_to_predicate,
+   #      'predicate_count': predicate_token_counter,
+   #      'object_count': object_token_counter
+   #  }
 
-    with open(args.json_file, 'w') as f:
-        json.dump(json_struct, f)
+   #  with open(args.json_file, 'w') as f:
+   #      json.dump(json_struct, f)
 
 
 if __name__ == '__main__':
