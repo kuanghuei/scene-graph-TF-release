@@ -664,8 +664,8 @@ def main(args):
     # obj_data = json.load(open(args.object_input))
     # rel_data = json.load(open(args.relationship_input))
     img_data = json.load(open(args.metadata_input))
-    assert(len(rel_data) == len(obj_data) and
-           len(obj_data) == len(img_data))
+    # assert(len(rel_data) == len(obj_data) and
+           # len(obj_data) == len(img_data))
 
     print('read image db from %s' % args.imdb)
     imdb = h5.File(args.imdb, 'r')
