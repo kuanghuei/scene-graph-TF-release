@@ -120,7 +120,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_dir', default='VG/images')
-    parser.add_argument('--vrrvg_dir', default='VG/Vrr-VG', type=str)
+    parser.add_argument('--vrrvg_dir', default='VG/VrR-VG', type=str)
     parser.add_argument('--image_size', default=1024, type=int)
     parser.add_argument('--imh5_dir', default='.')
     parser.add_argument('--num_workers', default=20, type=int)
