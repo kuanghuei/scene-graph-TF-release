@@ -617,14 +617,14 @@ def create_from_xml(img_data, args):
                 ymax = int(child[3][1].text)
                 w = xmax - xmin
                 h = ymax - ymin
-                obj_data['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
+                obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
                 obj_list.add(name)
 
             if child.tag == 'relation':
                 subject_id = in(child[0].text)
                 object_id = in(child[1].text)
                 predicate = str(child[2].text)
-                rel_data['relationships'].append({'object': {'object_id': object_id}, 'subject': {'subject_id': subject_id}, 'predicate': predicate})
+                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'subject_id': subject_id}, 'predicate': predicate})
                 pred_list.add(predicate)
     
     return list(obj_list), list(pred_list), obj_data, rel_data
