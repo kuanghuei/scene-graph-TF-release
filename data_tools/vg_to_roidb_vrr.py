@@ -701,98 +701,98 @@ def main(args):
                == img_ids[i]
                )
 
-   #  # may only load a fraction of the data
-   #  if args.load_frac < 1:
-   #      num_im = int(num_im*args.load_frac)
-   #      obj_data = obj_data[:num_im]
-   #      rel_data = rel_data[:num_im]
-   #  print('processing %i images' % num_im)
+    # may only load a fraction of the data
+    if args.load_frac < 1:
+        num_im = int(num_im*args.load_frac)
+        obj_data = obj_data[:num_im]
+        rel_data = rel_data[:num_im]
+    print('processing %i images' % num_im)
 
-   #  # sync objects from rel to obj_data
-   #  sync_objects(obj_data, rel_data)
+    # sync objects from rel to obj_data
+    sync_objects(obj_data, rel_data)
 
-   #  obj_rel_cross_check(obj_data, rel_data)
+    obj_rel_cross_check(obj_data, rel_data)
 
-   #  # preprocess label data
-   #  # preprocess_object_labels(obj_data, alias_dict=obj_alias_dict)
-   #  # preprocess_predicates(rel_data, alias_dict=pred_alias_dict)
+    # preprocess label data
+    # preprocess_object_labels(obj_data, alias_dict=obj_alias_dict)
+    # preprocess_predicates(rel_data, alias_dict=pred_alias_dict)
 
-   #  heights, widths = imdb['original_heights'][:], imdb['original_widths'][:]
-   #  if args.min_box_area_frac > 0:
-   #      # filter out invalid small boxes
-   #      print('threshold bounding box by %f area fraction' % args.min_box_area_frac)
-   #      filter_object_boxes(obj_data, heights, widths, args.min_box_area_frac) # filter by box dimensions
+    heights, widths = imdb['original_heights'][:], imdb['original_widths'][:]
+    if args.min_box_area_frac > 0:
+        # filter out invalid small boxes
+        print('threshold bounding box by %f area fraction' % args.min_box_area_frac)
+        filter_object_boxes(obj_data, heights, widths, args.min_box_area_frac) # filter by box dimensions
 
-   #  merge_duplicate_boxes(obj_data)
+    merge_duplicate_boxes(obj_data)
 
-   #  # build vocabulary
-   #  object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
-   #                                                             obj_list)
+    # build vocabulary
+    object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
+                                                               obj_list)
 
-   #  label_to_idx, idx_to_label = build_token_dict(object_tokens)
+    label_to_idx, idx_to_label = build_token_dict(object_tokens)
 
-   #  predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data,
-   #                                                                      args.num_predicates,
-   #                                                                      pred_list)
-   #  predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
+    predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data,
+                                                                        args.num_predicates,
+                                                                        pred_list)
+    predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
 
-   #  # print out vocabulary
-   #  print('objects: ')
-   #  print(object_token_counter)
-   #  print('relationships: ')
-   #  print(predicate_token_counter)
+    # print out vocabulary
+    print('objects: ')
+    print(object_token_counter)
+    print('relationships: ')
+    print(predicate_token_counter)
 
-   #  # write the h5 file
-   #  f = h5.File(args.h5_file, 'w')
+    # write the h5 file
+    f = h5.File(args.h5_file, 'w')
 
-   #  # encode object
-   #  encoded_label, encoded_boxes, im_to_first_obj, im_to_last_obj = \
-   #  encode_objects(obj_data, label_to_idx, object_token_counter, \
-   #                 heights, widths, img_long_sizes)
+    # encode object
+    encoded_label, encoded_boxes, im_to_first_obj, im_to_last_obj = \
+    encode_objects(obj_data, label_to_idx, object_token_counter, \
+                   heights, widths, img_long_sizes)
 
-   #  f.create_dataset('labels', data=encoded_label)
-   #  for k, boxes in encoded_boxes.items():
-   #      f.create_dataset('boxes_%i' % k, data=boxes)
-   #  f.create_dataset('img_to_first_box', data=im_to_first_obj)
-   #  f.create_dataset('img_to_last_box', data=im_to_last_obj)
+    f.create_dataset('labels', data=encoded_label)
+    for k, boxes in encoded_boxes.items():
+        f.create_dataset('boxes_%i' % k, data=boxes)
+    f.create_dataset('img_to_first_box', data=im_to_first_obj)
+    f.create_dataset('img_to_last_box', data=im_to_last_obj)
 
-   #  encoded_predicate, encoded_rel, im_to_first_rel, im_to_last_rel = \
-   #  encode_relationships(rel_data, predicate_to_idx, obj_data)
+    encoded_predicate, encoded_rel, im_to_first_rel, im_to_last_rel = \
+    encode_relationships(rel_data, predicate_to_idx, obj_data)
 
-   #  f.create_dataset('predicates', data=encoded_predicate)
-   #  f.create_dataset('relationships', data=encoded_rel)
-   #  f.create_dataset('img_to_first_rel', data=im_to_first_rel)
-   #  f.create_dataset('img_to_last_rel', data=im_to_last_rel)
+    f.create_dataset('predicates', data=encoded_predicate)
+    f.create_dataset('relationships', data=encoded_rel)
+    f.create_dataset('img_to_first_rel', data=im_to_first_rel)
+    f.create_dataset('img_to_last_rel', data=im_to_last_rel)
 
-   # # build train/val/test splits
+   # build train/val/test splits
 
-   #  print('num objects = %i' % encoded_label.shape[0])
-   #  print('num relationships = %i' % encoded_predicate.shape[0])
+    print('num objects = %i' % encoded_label.shape[0])
+    print('num relationships = %i' % encoded_predicate.shape[0])
 
 
-   #  opt = None
-   #  if not args.use_input_split:
-   #      opt = {}
-   #      opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
-   #      opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
-   #      opt['shuffle'] = args.shuffle
-   #  split = encode_splits(obj_data, opt)
+    opt = None
+    if not args.use_input_split:
+        opt = {}
+        opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
+        opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
+        opt['shuffle'] = args.shuffle
+    split = encode_splits(obj_data, opt)
 
-   #  if split is not None:
-   #      f.create_dataset('split', data=split) # 1 = test, 0 = train
+    if split is not None:
+        f.create_dataset('split', data=split) # 1 = test, 0 = train
 
-   #  # and write the additional json file
-   #  json_struct = {
-   #      'label_to_idx': label_to_idx,
-   #      'idx_to_label': idx_to_label,
-   #      'predicate_to_idx': predicate_to_idx,
-   #      'idx_to_predicate': idx_to_predicate,
-   #      'predicate_count': predicate_token_counter,
-   #      'object_count': object_token_counter
-   #  }
+    # and write the additional json file
+    json_struct = {
+        'label_to_idx': label_to_idx,
+        'idx_to_label': idx_to_label,
+        'predicate_to_idx': predicate_to_idx,
+        'idx_to_predicate': idx_to_predicate,
+        'predicate_count': predicate_token_counter,
+        'object_count': object_token_counter
+    }
 
-   #  with open(args.json_file, 'w') as f:
-   #      json.dump(json_struct, f)
+    with open(args.json_file, 'w') as f:
+        json.dump(json_struct, f)
 
 
 if __name__ == '__main__':
