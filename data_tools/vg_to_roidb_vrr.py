@@ -276,6 +276,7 @@ def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_
             im_to_last_obj[i] = obj_counter - 1
 
     for k, boxes in encoded_boxes.items():
+        print(boxes)
         encoded_boxes[k] = np.vstack(boxes)
     return np.vstack(encoded_labels), encoded_boxes, im_to_first_obj, im_to_last_obj
 
