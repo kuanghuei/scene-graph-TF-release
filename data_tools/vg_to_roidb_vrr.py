@@ -541,58 +541,93 @@ def sync_objects(obj_data, rel_data):
 #     return list(obj_list)
 
 
-def filter_by_xml(obj_data, rel_data, img_data, args):
+# def filter_by_xml(obj_data, rel_data, img_data, args):
+#     pred_list = set()
+#     obj_list = set()
+#     for im_obj, im_rel, im in zip(obj_data, rel_data, img_data):
+#         assert im['image_id'] == im_obj['image_id'] == im_rel['image_id']
+#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+#         root = tree.getroot()
+#         rel_ref = {}
+#         obj_ref = {}
+#         for child in root:
+
+#             if child.tag == 'object':
+#                 name = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 obj_ref[object_id] = name
+
+#             if child.tag == 'relation':
+#                 subject_id = str(child[0].text)
+#                 object_id = str(child[1].text)
+#                 predicate = str(child[2].text)
+#                 rel_ref[(subject_id, object_id)] = predicate
+
+#         objects, relationships = im_obj['objects'], im_rel['relationships']
+#         added_objects, added_relationships = set(), set()
+#         new_objects, new_relationships = [], []
+#         im_obj['objects'], im_rel['relationships'] = [], []
+
+#         for obj in objects:
+#             k1 = str(obj['object_id'])
+#             if k1 in obj_ref:
+#                 name = obj_ref[k1]
+#                 k2 = (str(obj['object_id']), name)
+#                 if k2 not in added_objects:
+#                     added_objects.add(k2)
+#                     obj_list.add(name)
+#                     obj['name'] = name
+#                     im_obj['objects'].append(obj)
+#         assert len(im_obj['objects']) == len(obj_ref)
+
+#         for rel in relationships:
+#             k1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
+#             if k1 in rel_ref:
+#                 pred = rel_ref[k1]
+#                 k2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), pred)
+#                 if k2 not in added_relationships:
+#                     added_relationships.add(k2)
+#                     pred_list.add(pred)
+#                     rel['predicate'] = pred
+#                     im_rel['relationships'].append(rel)
+#         assert len(im_rel['relationships']) == len(rel_ref)
+    
+#     return list(obj_list), list(pred_list)
+
+
+
+def create_from_xml(img_data, args):
     pred_list = set()
     obj_list = set()
-    for im_obj, im_rel, im in zip(obj_data, rel_data, img_data):
-        assert im['image_id'] == im_obj['image_id'] == im_rel['image_id']
+    obj_data, rel_data = [], []
+
+    for im in img_data:
         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
         root = tree.getroot()
-        rel_ref = {}
-        obj_ref = {}
+        obj_data.append({'objects':[], 'image_id':im['image_id']})
+        rel_data.append({'relationships':[], 'image_id':im['image_id']})
         for child in root:
 
             if child.tag == 'object':
                 name = str(child[0].text)
-                object_id = str(child[1].text)
-                obj_ref[object_id] = name
+                object_id = int(child[1].text)
+                xmin = int(child[3][0].text)
+                ymin = int(child[3][1].text)
+                xmax = int(child[3][0].text)
+                ymax = int(child[3][1].text)
+                w = xmax - xmin
+                h = ymax - ymin
+                obj_data['objects'].append({'x': xmin, , 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
+                obj_list.add(name)
 
             if child.tag == 'relation':
-                subject_id = str(child[0].text)
-                object_id = str(child[1].text)
+                subject_id = in(child[0].text)
+                object_id = in(child[1].text)
                 predicate = str(child[2].text)
-                rel_ref[(subject_id, object_id)] = predicate
-
-        objects, relationships = im_obj['objects'], im_rel['relationships']
-        added_objects, added_relationships = set(), set()
-        new_objects, new_relationships = [], []
-        im_obj['objects'], im_rel['relationships'] = [], []
-
-        for obj in objects:
-            k1 = str(obj['object_id'])
-            if k1 in obj_ref:
-                name = obj_ref[k1]
-                k2 = (str(obj['object_id']), name)
-                if k2 not in added_objects:
-                    added_objects.add(k2)
-                    obj_list.add(name)
-                    obj['name'] = name
-                    im_obj['objects'].append(obj)
-        assert len(im_obj['objects']) == len(obj_ref)
-
-        for rel in relationships:
-            k1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
-            if k1 in rel_ref:
-                pred = rel_ref[k1]
-                k2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), pred)
-                if k2 not in added_relationships:
-                    added_relationships.add(k2)
-                    pred_list.add(pred)
-                    rel['predicate'] = pred
-                    im_rel['relationships'].append(rel)
-        assert len(im_rel['relationships']) == len(rel_ref)
+                rel_data['relationships'].append({'object': {'object_id': object_id}, 'subject': {'subject_id': subject_id}, 'predicate': predicate})
+                pred_list.add(predicate)
     
-    return list(obj_list), list(pred_list)
+    return list(obj_list), list(pred_list), obj_data, rel_data
 
 
 def main(args):
@@ -626,8 +661,8 @@ def main(args):
 
     # read in the annotation data
     print('loading json files..')
-    obj_data = json.load(open(args.object_input))
-    rel_data = json.load(open(args.relationship_input))
+    # obj_data = json.load(open(args.object_input))
+    # rel_data = json.load(open(args.relationship_input))
     img_data = json.load(open(args.metadata_input))
     assert(len(rel_data) == len(obj_data) and
            len(obj_data) == len(img_data))
@@ -642,15 +677,17 @@ def main(args):
     print('len(valid_im_idx)', len(valid_im_idx))
     print('len(img_ids)', len(img_ids))
 
-    obj_data = filter_by_idx(obj_data, valid_im_idx)
-    rel_data = filter_by_idx(rel_data, valid_im_idx)
+    # obj_data = filter_by_idx(obj_data, valid_im_idx)
+    # rel_data = filter_by_idx(rel_data, valid_im_idx)
     img_data = filter_by_idx(img_data, valid_im_idx)
 
-    print('len(obj_data) before filtering', len(obj_data))
-    print('len(rel_data) before filtering', len(rel_data))
+    # print('len(obj_data) before filtering', len(obj_data))
+    # print('len(rel_data) before filtering', len(rel_data))
     print('len(img_data) before filtering', len(img_data))
 
-    obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
+
+    obj_list, pred_list, obj_data, rel_data = create_from_xml(img_data, args)
+    # obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
 
     print('len(obj_data) after filtering', len(obj_data))
     print('len(rel_data) after filtering', len(rel_data))
