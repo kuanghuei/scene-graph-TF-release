@@ -586,7 +586,7 @@ def filter_by_xml(obj_data, rel_data, img_data, args):
                 pred = rel_ref[k1]
                 k2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), pred)
                 if k2 not in added_relationships:
-                    added.add(k2)
+                    added_relationships.add(k2)
                     pred_list.add(pred)
                     rel['predicate'] = pred
                     im_rel['relationships'].append(rel)
