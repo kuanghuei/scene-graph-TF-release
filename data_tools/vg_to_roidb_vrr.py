@@ -276,7 +276,7 @@ def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_
             im_to_last_obj[i] = obj_counter - 1
 
     for k, boxes in encoded_boxes.items():
-        print(boxes)
+        # print(boxes)
         encoded_boxes[k] = np.vstack(boxes)
     return np.vstack(encoded_labels), encoded_boxes, im_to_first_obj, im_to_last_obj
 
@@ -688,6 +688,8 @@ def main(args):
 
 
     obj_list, pred_list, obj_data, rel_data = create_from_xml(img_data, args)
+    print("number of object classes", len(obj_list))
+    print("number of relation classes", len(rel_list))
     # obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
 
     print('len(obj_data) after filtering', len(obj_data))
