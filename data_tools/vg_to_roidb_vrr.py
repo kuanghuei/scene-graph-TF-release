@@ -42,7 +42,7 @@ def preprocess_predicates(data, alias_dict={}):
             relation['predicate'] = predicate
 
 
-def extract_object_token(data, num_tokens, obj_list=[], verbose=True):
+def extract_object_token(data, obj_list=[], verbose=True):
     """ Builds a set that contains the object names. Filters infrequent tokens. """
     token_counter = Counter()
     for img in data:
@@ -56,15 +56,13 @@ def extract_object_token(data, num_tokens, obj_list=[], verbose=True):
     for token, count in token_counter.most_common():
         tokens.add(token)
         token_counter_return[token] = count
-        if len(tokens) == num_tokens:
-            break
     if verbose:
         print(('Keeping %d / %d objects'
                   % (len(tokens), len(token_counter))))
     return tokens, token_counter_return
 
 
-def extract_predicate_token(data, num_tokens, pred_list=[], verbose=True):
+def extract_predicate_token(data, pred_list=[], verbose=True):
     """ Builds a set that contains the relationship predicates. Filters infrequent tokens. """
     token_counter = Counter()
     total = 0
@@ -79,8 +77,6 @@ def extract_predicate_token(data, num_tokens, pred_list=[], verbose=True):
     for token, count in token_counter.most_common():
         tokens.add(token)
         token_counter_return[token] = count
-        if len(tokens) == num_tokens:
-            break
     if verbose:
         print(('Keeping %d / %d predicates with enough instances'
                   % (len(tokens), len(token_counter))))
@@ -729,14 +725,11 @@ def main(args):
     merge_duplicate_boxes(obj_data)
 
     # build vocabulary
-    object_tokens, object_token_counter = extract_object_token(obj_data, args.num_objects,
-                                                               obj_list)
+    object_tokens, object_token_counter = extract_object_token(obj_data, obj_list)
 
     label_to_idx, idx_to_label = build_token_dict(object_tokens)
 
-    predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data,
-                                                                        args.num_predicates,
-                                                                        pred_list)
+    predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data, pred_list)
     predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
 
     # print out vocabulary
@@ -810,8 +803,8 @@ if __name__ == '__main__':
     # parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
     # parser.add_argument('--object_list', default='VG/object_list.txt', type=str)
     # parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
-    parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
-    parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
+    # parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
+    # parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
     parser.add_argument('--min_box_area_frac', default=0.002, type=float)
     parser.add_argument('--json_file', default='VG-dicts.json')
     parser.add_argument('--h5_file', default='VG.h5')
