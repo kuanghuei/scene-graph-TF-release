@@ -624,7 +624,7 @@ def create_from_xml(img_data, args):
                 subject_id = int(child[0].text)
                 object_id = int(child[1].text)
                 predicate = str(child[2].text)
-                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'subject_id': subject_id}, 'predicate': predicate})
+                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
                 pred_list.add(predicate)
     
     return list(obj_list), list(pred_list), obj_data, rel_data
