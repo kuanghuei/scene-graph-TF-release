@@ -689,7 +689,7 @@ def main(args):
 
     obj_list, pred_list, obj_data, rel_data = create_from_xml(img_data, args)
     print("number of object classes", len(obj_list))
-    print("number of relation classes", len(rel_list))
+    print("number of predicate classes", len(pred_list))
     # obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
 
     print('len(obj_data) after filtering', len(obj_data))
