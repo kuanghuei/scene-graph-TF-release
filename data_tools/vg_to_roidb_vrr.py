@@ -467,132 +467,6 @@ def sync_objects(obj_data, rel_data):
         obj_data[i]['objects'] = objs
 
 
-# def filter_rel(rel_data, args):
-#     pred_list = set()
-#     for im in rel_data:
-#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-#         root = tree.getroot()
-#         ref = {}
-#         for child in root:
-#             if child.tag == 'relation':
-#                 subject_id = str(child[0].text)
-#                 object_id = str(child[1].text)
-#                 predicate = str(child[2].text)
-#                 ref[(subject_id, object_id)] = predicate
-#         rels = im['relationships']
-#         added = set()
-#         new_rels = []
-#         for rel in rels:
-#             key1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
-#             if key1 in ref:
-#                 key2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), ref[key1])
-#                 if key2 not in added:
-#                     added.add(key2)
-#                     rel['predicate'] = ref[key1]
-#                     pred_list.add(rel['predicate'])
-#                     new_rels.append(rel)
-#         im['relationships'] = new_rels
-#     return list(pred_list)
-
-
-# def filter_obj(obj_data, args):
-#     obj_list = set()
-#     for im in obj_data:
-#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-#         root = tree.getroot()
-#         ref = {}
-#         for child in root:
-#             if child.tag == 'object':
-#                 name = str(child[0].text)
-#                 object_id = str(child[1].text)
-#                 ref[object_id] = name
-#         objs = im['objects']
-#         added = set()
-#         new_objs = []
-#         for obj in objs:
-#             key1 = str(obj['object_id'])
-#             if key1 in ref:
-#                 key2 = (str(obj['object_id']), ref[key1])
-#                 if key2 not in added:
-#                     added.add(key2)
-#                     obj['name'] = ref[key1]
-#                     obj_list.add(obj['name'])
-#                     new_objs.append(obj)
-#         im['objects'] = new_objs
-#     return list(obj_list)
-
-
-# def filter_img(img_data, args):
-#     for im in img_data:
-#         xml_filename = '{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])
-#         for obj in objs:
-#             key1 = str(obj['object_id'])
-#             if key1 in ref:
-#                 key2 = (str(obj['object_id']), ref[key1])
-#                 if key2 not in added:
-#                     added.add(key2)
-#                     obj['name'] = ref[key1]
-#                     obj_list.add(obj['name'])
-#                     new_objs.append(obj)
-#         im['objects'] = new_objs
-#     return list(obj_list)
-
-
-# def filter_by_xml(obj_data, rel_data, img_data, args):
-#     pred_list = set()
-#     obj_list = set()
-#     for im_obj, im_rel, im in zip(obj_data, rel_data, img_data):
-#         assert im['image_id'] == im_obj['image_id'] == im_rel['image_id']
-#         tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-#         root = tree.getroot()
-#         rel_ref = {}
-#         obj_ref = {}
-#         for child in root:
-
-#             if child.tag == 'object':
-#                 name = str(child[0].text)
-#                 object_id = str(child[1].text)
-#                 obj_ref[object_id] = name
-
-#             if child.tag == 'relation':
-#                 subject_id = str(child[0].text)
-#                 object_id = str(child[1].text)
-#                 predicate = str(child[2].text)
-#                 rel_ref[(subject_id, object_id)] = predicate
-
-#         objects, relationships = im_obj['objects'], im_rel['relationships']
-#         added_objects, added_relationships = set(), set()
-#         new_objects, new_relationships = [], []
-#         im_obj['objects'], im_rel['relationships'] = [], []
-
-#         for obj in objects:
-#             k1 = str(obj['object_id'])
-#             if k1 in obj_ref:
-#                 name = obj_ref[k1]
-#                 k2 = (str(obj['object_id']), name)
-#                 if k2 not in added_objects:
-#                     added_objects.add(k2)
-#                     obj_list.add(name)
-#                     obj['name'] = name
-#                     im_obj['objects'].append(obj)
-#         assert len(im_obj['objects']) == len(obj_ref)
-
-#         for rel in relationships:
-#             k1 = (str(rel['subject']['object_id']), str(rel['object']['object_id']))
-#             if k1 in rel_ref:
-#                 pred = rel_ref[k1]
-#                 k2 = (str(rel['subject']['object_id']), str(rel['object']['object_id']), pred)
-#                 if k2 not in added_relationships:
-#                     added_relationships.add(k2)
-#                     pred_list.add(pred)
-#                     rel['predicate'] = pred
-#                     im_rel['relationships'].append(rel)
-#         assert len(im_rel['relationships']) == len(rel_ref)
-    
-#     return list(obj_list), list(pred_list)
-
-
-
 def create_from_xml(img_data, args):
     pred_list = set()
     obj_list = set()
@@ -631,38 +505,9 @@ def main(args):
     print('start')
     pprint.pprint(args)
 
-    # obj_alias_dict = {}
-    # if len(args.object_alias) > 0:
-    #     print('using object alias from %s' % (args.object_alias))
-    #     obj_alias_dict, obj_vocab_list = make_alias_dict(args.object_alias)
-
-    # pred_alias_dict = {}
-    # if len(args.pred_alias) > 0:
-    #     print('using predicate alias from %s' % (args.pred_alias))
-    #     pred_alias_dict, pred_vocab_list = make_alias_dict(args.pred_alias)
-
-    # obj_list = obj_vocab_list[:]
-    # pred_list = pred_vocab_list[:]
-
-    # obj_list = []
-    # if len(args.object_list) > 0:
-    #     print('using object list from %s' % (args.object_list))
-    #     obj_list = make_list(args.object_list)
-    #     assert(len(obj_list) >= args.num_objects)
-
-    # pred_list = []
-    # if len(args.pred_list) > 0:
-    #     print('using predicate list from %s' % (args.pred_list))
-    #     pred_list = make_list(args.pred_list)
-    #     assert(len(obj_list) >= args.num_predicates)
-
     # read in the annotation data
     print('loading json files..')
-    # obj_data = json.load(open(args.object_input))
-    # rel_data = json.load(open(args.relationship_input))
     img_data = json.load(open(args.metadata_input))
-    # assert(len(rel_data) == len(obj_data) and
-           # len(obj_data) == len(img_data))
 
     print('read image db from %s' % args.imdb)
     imdb = h5.File(args.imdb, 'r')
@@ -674,22 +519,17 @@ def main(args):
     print('len(valid_im_idx)', len(valid_im_idx))
     print('len(img_ids)', len(img_ids))
 
-    # obj_data = filter_by_idx(obj_data, valid_im_idx)
-    # rel_data = filter_by_idx(rel_data, valid_im_idx)
     img_data = filter_by_idx(img_data, valid_im_idx)
 
     with open("image_data_.json", 'w') as f:
         json.dump(img_data, f)
 
-    # print('len(obj_data) before filtering', len(obj_data))
-    # print('len(rel_data) before filtering', len(rel_data))
     print('len(img_data) before filtering', len(img_data))
 
 
     obj_list, pred_list, obj_data, rel_data = create_from_xml(img_data, args)
     print("number of object classes", len(obj_list))
     print("number of predicate classes", len(pred_list))
-    # obj_list = filter_by_xml(obj_data, rel_data, img_data, args)
 
     print('len(obj_data) after filtering', len(obj_data))
     print('len(rel_data) after filtering', len(rel_data))
@@ -714,10 +554,6 @@ def main(args):
     sync_objects(obj_data, rel_data)
 
     obj_rel_cross_check(obj_data, rel_data)
-
-    # preprocess label data
-    # preprocess_object_labels(obj_data, alias_dict=obj_alias_dict)
-    # preprocess_predicates(rel_data, alias_dict=pred_alias_dict)
 
     heights, widths = imdb['original_heights'][:], imdb['original_widths'][:]
     if args.min_box_area_frac > 0:
@@ -767,7 +603,6 @@ def main(args):
 
     print('num objects = %i' % encoded_label.shape[0])
     print('num relationships = %i' % encoded_predicate.shape[0])
-
 
     opt = None
     if not args.use_input_split:
