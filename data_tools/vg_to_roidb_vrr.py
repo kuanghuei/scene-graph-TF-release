@@ -610,8 +610,8 @@ def create_from_xml(img_data, args):
                 object_id = int(child[1].text)
                 xmin = int(child[3][0].text)
                 ymin = int(child[3][1].text)
-                xmax = int(child[3][0].text)
-                ymax = int(child[3][1].text)
+                xmax = int(child[3][2].text)
+                ymax = int(child[3][3].text)
                 w = xmax - xmin
                 h = ymax - ymin
                 obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
