@@ -678,6 +678,9 @@ def main(args):
     # rel_data = filter_by_idx(rel_data, valid_im_idx)
     img_data = filter_by_idx(img_data, valid_im_idx)
 
+    with open("image_data_.json", 'w') as f:
+        json.dump(img_data, f)
+
     # print('len(obj_data) before filtering', len(obj_data))
     # print('len(rel_data) before filtering', len(rel_data))
     print('len(img_data) before filtering', len(img_data))
