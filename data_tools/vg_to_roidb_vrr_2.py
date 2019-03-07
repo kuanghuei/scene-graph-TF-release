@@ -717,7 +717,7 @@ if __name__ == '__main__':
     # parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
     # parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
     # parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
-    parser.add_argument('--min_box_area_frac', default=0.002, type=float)
+    parser.add_argument('--min_box_area_frac', default=0.000, type=float)
     parser.add_argument('--json_file', default='VG-dicts.json')
     parser.add_argument('--h5_file', default='VG.h5')
     parser.add_argument('--load_frac', default=1, type=float)
