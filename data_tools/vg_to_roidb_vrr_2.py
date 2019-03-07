@@ -251,8 +251,8 @@ def encode_objects(obj_data, token_to_idx, token_counter, org_h, org_w, im_long_
                 if name in token_to_idx and token_counter[name] > max_occur:
                     obj_label = name
                     max_occur = token_counter[obj_label]
-            if obj_label is None:
-                print(obj['names'])
+            # if obj_label is None:
+                # print(obj['names'])
             if obj_label is not None:
                 # encode region
                 for size in im_long_sizes:
@@ -544,7 +544,6 @@ def create_from_xml(img_data, orginal_obj_data, args):
         obj_data.append({'objects':[], 'image_id':im['image_id']})
         rel_data.append({'relationships':[], 'image_id':im['image_id']})
         im_obj_ids = set()
-        im_rel_ids_comp = set()
 
         for child in root:
             if child.tag == 'object':
