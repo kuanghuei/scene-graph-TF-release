@@ -473,6 +473,8 @@ def create_from_xml(img_data, orginal_obj_data, args):
     obj_data, rel_data = [], []
 
     for im in img_data:
+        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+        root = tree.getroot()
         for child in root:
             if child.tag == 'object':
                 name = str(child[0].text)
