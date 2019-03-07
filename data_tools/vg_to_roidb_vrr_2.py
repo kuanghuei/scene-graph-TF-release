@@ -542,11 +542,10 @@ def create_from_xml(img_data, orginal_obj_data, args):
         root = tree.getroot()
         obj_data.append({'objects':[], 'image_id':im['image_id']})
         rel_data.append({'relationships':[], 'image_id':im['image_id']})
+        im_obj_ids = set()
+        im_rel_ids_comp = set()
 
-        
         for child in root:
-            im_obj_ids = set()
-
             if child.tag == 'object':
                 name = str(child[0].text)
                 object_id = int(child[1].text)
@@ -560,17 +559,21 @@ def create_from_xml(img_data, orginal_obj_data, args):
                 h = ymax - ymin
                 obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
 
-            if child.tag == 'relation':
-                subject_id = int(child[0].text)
-                object_id = int(child[1].text)
-                predicate = str(child[2].text)
-                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
-
         for obj in im_obj['objects']:
             if any([name in obj_list for name in obj['names']]):
                 if obj['object_id'] not in im_obj_ids:
                     obj_data[-1]['objects'].append(obj)
-    
+                    im_obj_ids.add(int(obj['object_id']))
+
+        for child in root:
+            if child.tag == 'relation':
+                subject_id = int(child[0].text)
+                object_id = int(child[1].text)
+                predicate = str(child[2].text)
+                if subject_id not in im_obj_ids or object_id not in im_obj_ids:
+                    print(subject_id, object_id, predicate)
+                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
+        
     return list(obj_list), list(pred_list), obj_data, rel_data
 
 
@@ -717,7 +720,7 @@ if __name__ == '__main__':
     # parser.add_argument('--pred_list', default='VG/predicate_list.txt', type=str)
     # parser.add_argument('--num_objects', default=150, type=int, help="set to 0 to disable filtering")
     # parser.add_argument('--num_predicates', default=50, type=int, help="set to 0 to disable filtering")
-    parser.add_argument('--min_box_area_frac', default=0.000, type=float)
+    parser.add_argument('--min_box_area_frac', default=0.002, type=float)
     parser.add_argument('--json_file', default='VG-dicts.json')
     parser.add_argument('--h5_file', default='VG.h5')
     parser.add_argument('--load_frac', default=1, type=float)
