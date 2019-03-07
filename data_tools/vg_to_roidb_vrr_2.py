@@ -573,6 +573,12 @@ def create_from_xml(img_data, orginal_obj_data, args):
                 if subject_id not in im_obj_ids or object_id not in im_obj_ids:
                     print(subject_id, object_id, predicate)
                 rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
+
+        for obj in im_obj['objects']:
+            if any([name in obj_list for name in obj['names']]):
+                if obj['object_id'] not in im_obj_ids:
+                    obj_data[-1]['objects'].append(obj)
+                    im_obj_ids.add(int(obj['object_id']))
         
     return list(obj_list), list(pred_list), obj_data, rel_data
 
