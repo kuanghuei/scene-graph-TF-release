@@ -17,7 +17,7 @@ python vg_to_roidb_vrr_2.py \
     --json_file $OUT_PATH/$JSON \
     --h5_file $OUT_PATH/$H5 \
     --load_frac $FRAC \
-    --train_frac 0.9 \
-    --val_frac 0.9 \
+    --train_frac 0.95 \
+    --val_frac 0.95 \
     # --num_objects $N_OBJ \
     # --num_predicates $N_REL \
