@@ -19,5 +19,6 @@ python vg_to_roidb_vrr_2.py \
     --load_frac $FRAC \
     --train_frac 0.95 \
     --val_frac 0.95 \
+    --min_box_area_frac 0.1 \
     # --num_objects $N_OBJ \
     # --num_predicates $N_REL \
