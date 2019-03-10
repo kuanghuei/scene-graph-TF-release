@@ -526,54 +526,62 @@ def create_from_xml(img_data, orginal_obj_data, args):
     obj_data, rel_data = [], []
 
     for im in img_data:
-        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-        root = tree.getroot()
-        for child in root:
-            if child.tag == 'object':
-                name = str(child[0].text)
-                obj_list.add(name)
+        if os.path.exists('{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])):
+            tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+            root = tree.getroot()
+            for child in root:
+                if child.tag == 'object':
+                    name = str(child[0].text)
+                    obj_list.add(name)
 
-            if child.tag == 'relation':
-                predicate = str(child[2].text)
-                pred_list.add(predicate)
+                if child.tag == 'relation':
+                    predicate = str(child[2].text)
+                    pred_list.add(predicate)
 
 
     for im, im_obj in zip(img_data, orginal_obj_data):
-        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-        root = tree.getroot()
         obj_data.append({'objects':[], 'image_id':im['image_id']})
         rel_data.append({'relationships':[], 'image_id':im['image_id']})
-        im_obj_ids = set()
 
-        for child in root:
-            if child.tag == 'object':
-                name = str(child[0].text)
-                object_id = int(child[1].text)
-                im_obj_ids.add(object_id)
-                # print("NEW OBJ: {}/{}".format(im['image_id'], object_id))
-                xmin = int(child[3][0].text)
-                ymin = int(child[3][1].text)
-                xmax = int(child[3][2].text)
-                ymax = int(child[3][3].text)
-                w = xmax - xmin
-                h = ymax - ymin
-                obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
+        if os.path.exists('{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])):
+            tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+            root = tree.getroot()
+            im_obj_ids = set()
+        
+            for child in root:
+                if child.tag == 'object':
+                    name = str(child[0].text)
+                    object_id = int(child[1].text)
+                    im_obj_ids.add(object_id)
+                    # print("NEW OBJ: {}/{}".format(im['image_id'], object_id))
+                    xmin = int(child[3][0].text)
+                    ymin = int(child[3][1].text)
+                    xmax = int(child[3][2].text)
+                    ymax = int(child[3][3].text)
+                    w = xmax - xmin
+                    h = ymax - ymin
+                    obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
 
-        for obj in im_obj['objects']:
-            if any([name in obj_list for name in obj['names']]):
-                if obj['object_id'] not in im_obj_ids:
+            for obj in im_obj['objects']:
+                if any([name in obj_list for name in obj['names']]):
+                    if obj['object_id'] not in im_obj_ids:
+                        obj_data[-1]['objects'].append(obj)
+                        im_obj_ids.add(int(obj['object_id']))
+
+            for child in root:
+                if child.tag == 'relation':
+                    subject_id = int(child[0].text)
+                    object_id = int(child[1].text)
+                    predicate = str(child[2].text)
+                    if subject_id not in im_obj_ids or object_id not in im_obj_ids:
+                        print(subject_id, object_id, predicate)
+                    rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
+        else:
+            for obj in im_obj['objects']:
+                if any([name in obj_list for name in obj['names']]):
                     obj_data[-1]['objects'].append(obj)
                     im_obj_ids.add(int(obj['object_id']))
 
-        for child in root:
-            if child.tag == 'relation':
-                subject_id = int(child[0].text)
-                object_id = int(child[1].text)
-                predicate = str(child[2].text)
-                if subject_id not in im_obj_ids or object_id not in im_obj_ids:
-                    print(subject_id, object_id, predicate)
-                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
-        
     return list(obj_list), list(pred_list), obj_data, rel_data
 
 
