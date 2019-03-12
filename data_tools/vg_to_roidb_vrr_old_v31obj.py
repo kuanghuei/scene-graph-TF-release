@@ -612,10 +612,10 @@ def main(args):
                     object_token_counter[label] = 0
                     print("adding label {}".format(label))
             for pred, idx in predicate_to_idx:
-                if label not in predicate_tokens:
-                    predicate_tokens.add(label)
-                    predicate_token_counter[label] = 0
-                    print("adding predicate {}".format(label))
+                if pred not in predicate_tokens:
+                    predicate_tokens.add(pred)
+                    predicate_token_counter[pred] = 0
+                    print("adding predicate {}".format(pred))
 
     # print out vocabulary
     print('objects: ')
