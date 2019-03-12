@@ -595,11 +595,27 @@ def main(args):
 
     # build vocabulary
     object_tokens, object_token_counter = extract_object_token(obj_data, obj_list)
-
-    label_to_idx, idx_to_label = build_token_dict(object_tokens)
-
     predicate_tokens, predicate_token_counter = extract_predicate_token(rel_data, pred_list)
-    predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
+
+    
+    if args.external_VG_SGG_dicts == '':
+        label_to_idx, idx_to_label = build_token_dict(object_tokens)
+        predicate_to_idx, idx_to_predicate = build_token_dict(predicate_tokens)
+    else:
+        with open(args.external_VG_SGG_dicts) as fp:
+            vg_sgg_meta = json.load(fp)
+            label_to_idx, idx_to_label = vg_sgg_meta['label_to_idx'], vg_sgg_meta['idx_to_label']
+            predicate_to_idx, idx_to_predicate = vg_sgg_meta['predicate_to_idx'], vg_sgg_meta['idx_to_predicate']
+            for label, idx in label_to_idx:
+                if label not in object_tokens:
+                    object_tokens.add(label)
+                    object_token_counter[label] = 0
+                    print("adding label {}".format(label))
+            for pred, idx in predicate_to_idx:
+                if label not in predicate_tokens:
+                    predicate_tokens.add(label)
+                    predicate_token_counter[label] = 0
+                    print("adding predicate {}".format(label))
 
     # print out vocabulary
     print('objects: ')
@@ -666,7 +682,7 @@ if __name__ == '__main__':
     parser.add_argument('--relationship_input', default='VG/relationships.json', type=str)
     parser.add_argument('--vrrvg_dir', default='VG/VrR-VG', type=str)
     parser.add_argument('--metadata_input', default='VG/image_data.json', type=str)
-
+    parser.add_argument('--external_VG_SGG_dicts', default='', type=str)
     # parser.add_argument('--object_alias', default='VG/object_alias.txt', type=str)
     # parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
     # parser.add_argument('--object_list', default='VG/object_list.txt', type=str)
