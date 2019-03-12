@@ -8,7 +8,7 @@
 import argparse, json, string
 from collections import Counter
 import math
-import os
+
 from math import floor
 import h5py as h5
 import numpy as np
@@ -373,7 +373,6 @@ def encode_splits(obj_data, args):
             elif img['split'] == 'test':
                 test_cocoids.add(int(img['cocoid']))
 
-
     split = np.zeros(len(obj_data), dtype=np.int32)
     for i, info in enumerate(obj_data):
         splitix = 0
@@ -389,8 +388,8 @@ def encode_splits(obj_data, args):
         #     if i >= val_begin_idx: splitix = 1
         #     if i >= test_begin_idx: splitix = 2
         split[i] = splitix
-    # if opt is not None and opt['shuffle']:
-        # np.random.shuffle(split)
+    if opt is not None and opt['shuffle']:
+        np.random.shuffle(split)
 
     print(('assigned %d/%d/%d to train/val/test split' % (np.sum(split==0), np.sum(split==1), np.sum(split==2))))
     return split
@@ -541,78 +540,60 @@ def create_from_xml(img_data, orginal_obj_data, args):
     obj_data, rel_data = [], []
 
     for im in img_data:
-        if os.path.exists('{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])):
-            tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-            root = tree.getroot()
-            for child in root:
-                if child.tag == 'object':
-                    name = str(child[0].text)
-                    obj_list.add(name)
+        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+        root = tree.getroot()
+        for child in root:
+            if child.tag == 'object':
+                name = str(child[0].text)
+                obj_list.add(name)
 
-                if child.tag == 'relation':
-                    predicate = str(child[2].text)
-                    pred_list.add(predicate)
+            if child.tag == 'relation':
+                predicate = str(child[2].text)
+                pred_list.add(predicate)
 
 
     for im, im_obj in zip(img_data, orginal_obj_data):
+        tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
+        root = tree.getroot()
         obj_data.append({'objects':[], 'image_id':im['image_id']})
         rel_data.append({'relationships':[], 'image_id':im['image_id']})
+        im_obj_ids = set()
 
-        if os.path.exists('{}/{}.xml'.format(args.vrrvg_dir, im['image_id'])):
-            tree = ET.parse('{}/{}.xml'.format(args.vrrvg_dir, im['image_id']))
-            root = tree.getroot()
-            im_obj_ids = set()
-        
-            for child in root:
-                if child.tag == 'object':
-                    name = str(child[0].text)
-                    object_id = int(child[1].text)
-                    im_obj_ids.add(object_id)
-                    # print("NEW OBJ: {}/{}".format(im['image_id'], object_id))
-                    xmin = int(child[3][0].text)
-                    ymin = int(child[3][1].text)
-                    xmax = int(child[3][2].text)
-                    ymax = int(child[3][3].text)
-                    w = xmax - xmin
-                    h = ymax - ymin
-                    obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
+        for child in root:
+            if child.tag == 'object':
+                name = str(child[0].text)
+                object_id = int(child[1].text)
+                im_obj_ids.add(object_id)
+                # print("NEW OBJ: {}/{}".format(im['image_id'], object_id))
+                xmin = int(child[3][0].text)
+                ymin = int(child[3][1].text)
+                xmax = int(child[3][2].text)
+                ymax = int(child[3][3].text)
+                w = xmax - xmin
+                h = ymax - ymin
+                obj_data[-1]['objects'].append({'x': xmin, 'y': ymin, 'w': w, 'h': h, 'object_id': object_id, 'names': [name]})
 
-            for obj in im_obj['objects']:
-                if any([name in obj_list for name in obj['names']]):
-                    if obj['object_id'] not in im_obj_ids:
-                        obj_data[-1]['objects'].append(obj)
-                        im_obj_ids.add(int(obj['object_id']))
-
-            for child in root:
-                if child.tag == 'relation':
-                    subject_id = int(child[0].text)
-                    object_id = int(child[1].text)
-                    predicate = str(child[2].text)
-                    if subject_id not in im_obj_ids or object_id not in im_obj_ids:
-                        print(subject_id, object_id, predicate)
-                    rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
-        else:
-            for obj in im_obj['objects']:
-                if any([name in obj_list for name in obj['names']]):
+        for obj in im_obj['objects']:
+            if any([name in obj_list for name in obj['names']]):
+                if obj['object_id'] not in im_obj_ids:
                     obj_data[-1]['objects'].append(obj)
                     im_obj_ids.add(int(obj['object_id']))
 
+        for child in root:
+            if child.tag == 'relation':
+                subject_id = int(child[0].text)
+                object_id = int(child[1].text)
+                predicate = str(child[2].text)
+                if subject_id not in im_obj_ids or object_id not in im_obj_ids:
+                    print(subject_id, object_id, predicate)
+                rel_data[-1]['relationships'].append({'object': {'object_id': object_id}, 'subject': {'object_id': subject_id}, 'predicate': predicate})
+        
     return list(obj_list), list(pred_list), obj_data, rel_data
 
 
 def main(args):
     print('start')
     pprint.pprint(args)
-
-    with open(args.coco_meta) as fp:
-        coco_meta = json.load(fp)
-        for img in coco_meta['images']:
-            if img['split'] == 'val':
-                val_cocoids.add(int(img['cocoid']))
-            elif img['split'] == 'test':
-                test_cocoids.add(int(img['cocoid']))
-    print("val_cocoids", len(val_cocoids))
-    print("test_cocoids", len(test_cocoids))
 
     # read in the annotation data
     print('loading json files..')
@@ -714,13 +695,13 @@ def main(args):
     print('num objects = %i' % encoded_label.shape[0])
     print('num relationships = %i' % encoded_predicate.shape[0])
 
-    # opt = None
-    # if not args.use_input_split:
-    #     opt = {}
-    #     opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
-    #     opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
-    #     opt['shuffle'] = args.shuffle
-    split = encode_splits(obj_data, args)
+    opt = None
+    if not args.use_input_split:
+        opt = {}
+        opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
+        opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
+        opt['shuffle'] = args.shuffle
+    split = encode_splits(obj_data, opt)
 
     if split is not None:
         f.create_dataset('split', data=split) # 1 = test, 0 = train
@@ -746,7 +727,6 @@ if __name__ == '__main__':
     parser.add_argument('--relationship_input', default='VG/relationships.json', type=str)
     parser.add_argument('--vrrvg_dir', default='VG/VrR-VG', type=str)
     parser.add_argument('--metadata_input', default='VG/image_data.json', type=str)
-    parser.add_argument('--coco_meta', default='VG/dataset_coco.json', type=str)
 
     # parser.add_argument('--object_alias', default='VG/object_alias.txt', type=str)
     # parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
@@ -759,8 +739,8 @@ if __name__ == '__main__':
     parser.add_argument('--h5_file', default='VG.h5')
     parser.add_argument('--load_frac', default=1, type=float)
     parser.add_argument('--use_input_split', default=False, type=bool)
-    # parser.add_argument('--train_frac', default=0.7, type=float)
-    # parser.add_argument('--val_frac', default=0.7, type=float)
+    parser.add_argument('--train_frac', default=0.7, type=float)
+    parser.add_argument('--val_frac', default=0.7, type=float)
     parser.add_argument('--shuffle', default=False, type=bool)
 
     args = parser.parse_args()
