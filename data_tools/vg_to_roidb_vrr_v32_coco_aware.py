@@ -359,7 +359,7 @@ def sentence_preprocess(phrase):
     return str(phrase).lower().translate(None, string.punctuation).decode('utf-8', 'ignore')
 
 
-def encode_splits(obj_data, args):
+def encode_splits(obj_data, img_data, args):
     # if opt is not None:
         # val_begin_idx = opt['val_begin_idx']
         # test_begin_idx = opt['test_begin_idx']
@@ -373,13 +373,21 @@ def encode_splits(obj_data, args):
             elif img['split'] == 'test':
                 test_cocoids.add(int(img['cocoid']))
 
+    print("val_cocoids", len(val_cocoids))
+    print("test_cocoids", len(test_cocoids))
+
+    vg_split_dict = {}
+    for img in img_data:
+        vg_split_dict[img['image_id']] = img['coco_id']
+    
     split = np.zeros(len(obj_data), dtype=np.int32)
     for i, info in enumerate(obj_data):
         splitix = 0
-        if info['image_id'] in val_cocoids:
-            splitix = 1
-        elif info['image_id'] in test_cocoids:
+        coco_id = vg_split_dict[int(info['image_id'])]
+        if coco_id in val_cocoids or coco_id in test_cocoids:
             splitix = 2
+        # elif int(info['image_id']) in test_cocoids:
+            # splitix = 2
         # if opt is None: # use encode from input file
         #     s = info['split']
         #     if s == 'val': splitix = 1
@@ -388,8 +396,8 @@ def encode_splits(obj_data, args):
         #     if i >= val_begin_idx: splitix = 1
         #     if i >= test_begin_idx: splitix = 2
         split[i] = splitix
-    if opt is not None and opt['shuffle']:
-        np.random.shuffle(split)
+    # if opt is not None and opt['shuffle']:
+        # np.random.shuffle(split)
 
     print(('assigned %d/%d/%d to train/val/test split' % (np.sum(split==0), np.sum(split==1), np.sum(split==2))))
     return split
@@ -695,13 +703,15 @@ def main(args):
     print('num objects = %i' % encoded_label.shape[0])
     print('num relationships = %i' % encoded_predicate.shape[0])
 
-    opt = None
-    if not args.use_input_split:
-        opt = {}
-        opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
-        opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
-        opt['shuffle'] = args.shuffle
-    split = encode_splits(obj_data, opt)
+    # opt = None
+    # if not args.use_input_split:
+    #     opt = {}
+    #     opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
+    #     opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
+    #     opt['shuffle'] = args.shuffle
+    # split = encode_splits(obj_data, opt)
+    split = encode_splits(obj_data, img_data, args)
+    
 
     if split is not None:
         f.create_dataset('split', data=split) # 1 = test, 0 = train
@@ -727,6 +737,7 @@ if __name__ == '__main__':
     parser.add_argument('--relationship_input', default='VG/relationships.json', type=str)
     parser.add_argument('--vrrvg_dir', default='VG/VrR-VG', type=str)
     parser.add_argument('--metadata_input', default='VG/image_data.json', type=str)
+    parser.add_argument('--coco_meta', default='VG/dataset_coco.json', type=str)
 
     # parser.add_argument('--object_alias', default='VG/object_alias.txt', type=str)
     # parser.add_argument('--pred_alias', default='VG/predicate_alias.txt', type=str)
@@ -739,8 +750,8 @@ if __name__ == '__main__':
     parser.add_argument('--h5_file', default='VG.h5')
     parser.add_argument('--load_frac', default=1, type=float)
     parser.add_argument('--use_input_split', default=False, type=bool)
-    parser.add_argument('--train_frac', default=0.7, type=float)
-    parser.add_argument('--val_frac', default=0.7, type=float)
+    # parser.add_argument('--train_frac', default=0.7, type=float)
+    # parser.add_argument('--val_frac', default=0.7, type=float)
     parser.add_argument('--shuffle', default=False, type=bool)
 
     args = parser.parse_args()
