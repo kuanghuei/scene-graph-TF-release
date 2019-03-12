@@ -20,6 +20,6 @@ python vg_to_roidb_vrr_old_v31obj.py \
     --train_frac 0.95 \
     --val_frac 0.95 \
     --min_box_area_frac 0.002 \
-    --external_VG_SGG_dicts vrr_meta_v31 \
+    --external_VG_SGG_dicts vrr_meta_v31/VG-SGG-dicts.json \
     # --num_objects $N_OBJ \
     # --num_predicates $N_REL \
