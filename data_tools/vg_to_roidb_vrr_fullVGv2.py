@@ -372,14 +372,16 @@ def encode_splits(obj_data, args):
                 val_cocoids.add(int(img['cocoid']))
             elif img['split'] == 'test':
                 test_cocoids.add(int(img['cocoid']))
-
+    
+    print("val_cocoids", len(val_cocoids))
+    print("test_cocoids", len(test_cocoids))
 
     split = np.zeros(len(obj_data), dtype=np.int32)
     for i, info in enumerate(obj_data):
         splitix = 0
-        if info['image_id'] in val_cocoids:
+        if int(info['image_id']) in val_cocoids:
             splitix = 1
-        elif info['image_id'] in test_cocoids:
+        elif int(info['image_id']) in test_cocoids:
             splitix = 2
         # if opt is None: # use encode from input file
         #     s = info['split']
@@ -604,17 +606,17 @@ def main(args):
     print('start')
     pprint.pprint(args)
 
-    val_cocoids = set()
-    test_cocoids = set()
-    with open(args.coco_meta) as fp:
-        coco_meta = json.load(fp)
-        for img in coco_meta['images']:
-            if img['split'] == 'val':
-                val_cocoids.add(int(img['cocoid']))
-            elif img['split'] == 'test':
-                test_cocoids.add(int(img['cocoid']))
-    print("val_cocoids", len(val_cocoids))
-    print("test_cocoids", len(test_cocoids))
+    # val_cocoids = set()
+    # test_cocoids = set()
+    # with open(args.coco_meta) as fp:
+    #     coco_meta = json.load(fp)
+    #     for img in coco_meta['images']:
+    #         if img['split'] == 'val':
+    #             val_cocoids.add(int(img['cocoid']))
+    #         elif img['split'] == 'test':
+    #             test_cocoids.add(int(img['cocoid']))
+    # print("val_cocoids", len(val_cocoids))
+    # print("test_cocoids", len(test_cocoids))
 
     # read in the annotation data
     print('loading json files..')
