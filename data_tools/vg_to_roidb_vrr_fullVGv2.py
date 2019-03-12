@@ -604,6 +604,8 @@ def main(args):
     print('start')
     pprint.pprint(args)
 
+    val_cocoids = set()
+    test_cocoids = set()
     with open(args.coco_meta) as fp:
         coco_meta = json.load(fp)
         for img in coco_meta['images']:
