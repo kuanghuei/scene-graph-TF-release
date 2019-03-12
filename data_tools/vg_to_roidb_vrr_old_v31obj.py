@@ -606,12 +606,12 @@ def main(args):
             vg_sgg_meta = json.load(fp)
             label_to_idx, idx_to_label = vg_sgg_meta['label_to_idx'], vg_sgg_meta['idx_to_label']
             predicate_to_idx, idx_to_predicate = vg_sgg_meta['predicate_to_idx'], vg_sgg_meta['idx_to_predicate']
-            for label, idx in label_to_idx:
+            for label, idx in label_to_idx.items():
                 if label not in object_tokens:
                     object_tokens.add(label)
                     object_token_counter[label] = 0
                     print("adding label {}".format(label))
-            for pred, idx in predicate_to_idx:
+            for pred, idx in predicate_to_idx.items():
                 if pred not in predicate_tokens:
                     predicate_tokens.add(pred)
                     predicate_token_counter[pred] = 0
