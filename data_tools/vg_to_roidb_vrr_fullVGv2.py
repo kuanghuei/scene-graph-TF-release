@@ -359,7 +359,7 @@ def sentence_preprocess(phrase):
     return str(phrase).lower().translate(None, string.punctuation).decode('utf-8', 'ignore')
 
 
-def encode_splits(obj_data, args):
+def encode_splits(obj_data, img_data, args):
     # if opt is not None:
         # val_begin_idx = opt['val_begin_idx']
         # test_begin_idx = opt['test_begin_idx']
@@ -372,17 +372,22 @@ def encode_splits(obj_data, args):
                 val_cocoids.add(int(img['cocoid']))
             elif img['split'] == 'test':
                 test_cocoids.add(int(img['cocoid']))
-    
+
     print("val_cocoids", len(val_cocoids))
     print("test_cocoids", len(test_cocoids))
 
+    vg_split_dict = {}
+    for img in img_data:
+        vg_split_dict[img['image_id']] = img['coco_id']
+    
     split = np.zeros(len(obj_data), dtype=np.int32)
     for i, info in enumerate(obj_data):
         splitix = 0
-        if int(info['image_id']) in val_cocoids:
-            splitix = 1
-        elif int(info['image_id']) in test_cocoids:
+        coco_id = vg_split_dict[int(info['image_id'])]
+        if coco_id in val_cocoids or coco_id in test_cocoids:
             splitix = 2
+        # elif int(info['image_id']) in test_cocoids:
+            # splitix = 2
         # if opt is None: # use encode from input file
         #     s = info['split']
         #     if s == 'val': splitix = 1
@@ -724,7 +729,7 @@ def main(args):
     #     opt['val_begin_idx'] = int(len(obj_data) * args.train_frac)
     #     opt['test_begin_idx'] = int(len(obj_data) * args.val_frac)
     #     opt['shuffle'] = args.shuffle
-    split = encode_splits(obj_data, args)
+    split = encode_splits(obj_data, img_data, args)
 
     if split is not None:
         f.create_dataset('split', data=split) # 1 = test, 0 = train
